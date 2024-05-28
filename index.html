@@ -222,9 +222,6 @@
           for (let x = 0; x < width; x++) {
             for (let y = 0; y < height; y++) {
               var rgb = perceptron.activate([x / width, y / height])
-              if (y == 0){
-                console.log(rgb);
-              }
               imageData.data[(height * y + x) * 4] = rgb[0] * 255
               imageData.data[(height * y + x) * 4 + 1] = rgb[1] * 255
               imageData.data[(height * y + x) * 4 + 2] = rgb[2] * 255
