@@ -1,277 +1,80 @@
 <!DOCTYPE html>
 <html lang="en">
-
 <head>
-    <meta charset="utf-8">
-    <meta name="viewport"
-        content="width=device-width, initial-scale=1.0, minimum-scale=1.0, maximum-scale=1.0, user-scalable=no" />
-    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
-    <title>Telegram Mini Apps Vanilla JS Sample App</title>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/synaptic/1.1.4/synaptic.js"></script>
-    <style>
-        body {
-            --bg-color: var(--tg-theme-bg-color);
-            font: 12px/18px "Lucida Grande", "Lucida Sans Unicode", Arial, Helvetica, Verdana, sans-serif;
-            background-color: var(--bg-color);
-            color: var(--tg-theme-text-color);
-            margin: 48px 24px;
-            padding: 0;
-            color-scheme: var(--tg-color-scheme);
-        }
-
-        a {
-            color: var(--tg-theme-link-color);
-        }
-
-        #viewport {
-            position: fixed;
-            left: 0;
-            right: 0;
-            top: 0;
-            height: var(--tg-viewport-stable-height, 100vh);
-            pointer-events: none;
-            transition: all .2s ease;
-        }
-
-        #viewport:after {
-            content: '';
-            display: block;
-            position: absolute;
-            left: 0;
-            right: 0;
-            top: 0;
-            bottom: 0;
-            border-width: 4px;
-            border-style: solid;
-            border-image: linear-gradient(45deg, rgba(64, 224, 208, .5), rgba(173, 255, 47, .5)) 1;
-        }
-
-        #viewport-params-size,
-        #viewport-params-expand {
-            content: attr(text);
-            position: absolute;
-            display: inline-block;
-            background: var(--tg-theme-link-color, rgb(64, 224, 208));
-            right: 4px;
-            left: auto;
-            font-size: 8px;
-            padding: 4px;
-            vertical-align: top;
-        }
-
-        #viewport-params-size {
-            top: 4px;
-        }
-
-        #viewport-params-expand {
-            top: 30px;
-        }
-
-        .thumbnail {
-            border: 1px solid gray;
-        }
-    </style>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=0">
+  <meta name="format-detection" content="telephone=no" />
+  <meta name="apple-mobile-web-app-capable" content="yes" />
+  <style>
+    .stick-it-to-the-man {
+      position: fixed;
+      left: 0;
+      width: 100%;
+      transform: translateY(-100%);
+      text-align: center;
+      background-color: lightblue; /* 仅作为示例背景色 */
+    }
+    .navigator {
+      position: fixed;
+      left: 0;
+      height: 55px;
+      width: 100%;
+      bottom: 0;
+      text-align: center;
+      background-color: lightgray; /* 仅作为示例背景色 */
+    }
+  </style>
+  <title>Fixed Footer Example</title>
 </head>
-
 <body>
-    <main>
-        <div align="center">
-            <a href="https://ton.org/"><img width="48" src="./assets/tapps.png" alt="logo of telegram web apps"></a>
-        </div>
-        <h1>Modals</h1>
-        <button onclick="Telegram.WebApp.showAlert('Hello World!');">Launch Alert</button>
-        <button onclick="showPopup();">Launch Popup</button>
+  <script>
+    var mo=function(e){e.preventDefault();};
+    function stop(){
+      document.body.style.overflow='hidden';
+      document.addEventListener("touchmove",mo,{passive:false});//禁止页面滑动
+    }
+    //直接默认不让滑动
+    stop();
 
-        <h1>Links</h1>
-        <ul>
-            <li>
-                <a href="javascript:Telegram.WebApp.openTelegramLink('https://t.me/trendingapps');">Open link within
-                    Telegram</a>
-            </li>
-            <li>
-                <a href="javascript:Telegram.WebApp.openLink('https://ton.org/');">Open link in external browser</a>
-            </li>
-            <li>
-                <a href="javascript:Telegram.WebApp.openLink('https://telegra.ph/api',{try_instant_view:true});">Open
-                    link inside Telegram webview</a>
-            </li>
-
-        </ul>
-
-        <h1>Buttons</h1>
-        <button onclick="Telegram.WebApp.expand();">Expand Webview</button>
-        <button onclick="toggleMainButton();">Toggle Main Button</button>
-    </main>
-    <div id="viewport"></div>
-    <div id="viewport-params-size"></div>
-    <div id="viewport-params-expand"></div>
-    <div id="ai-image-render"></div>
-    <div>
-      <button onclick="startTraining(this)">Paint with NN</button><br /><br />
-      <img id="input" class="thumbnail" src="./so.bmp" />
-      <canvas id="output" class="thumbnail" width="125" height="125"></canvas>
-      <p>Iteration: <span id="iteration">0</span></p>
-    </div>
-    <script src="https://telegram.org/js/telegram-web-app.js"></script>
-    <script>
-        // Init TWA
-        Telegram.WebApp.ready();
-
-        // Event occurs whenever theme settings are changed in the user's Telegram app (including switching to night mode).
-        Telegram.WebApp.onEvent('themeChanged', function () {
-            document.documentElement.className = Telegram.WebApp.colorScheme;
-        });
-
-        // Show main button
-        Telegram.WebApp.MainButton.setParams({
-            text: 'Main Button'
-        });
-        Telegram.WebApp.MainButton.onClick(function () {
-            Telegram.WebApp.showAlert('Main Button was clicked')
-        });
-        Telegram.WebApp.MainButton.show();
-
-
-        function showAIImage() {
-            var img = document.createElement('img');
-            img.src = 'https://ton.org/download/ton_logo_dark_background.svg';
-            img.width = 100;
-            img.height = 100;
-            img.alt = 'TON logo';
-            document.getElementById('ai-image-render').appendChild(img);
-        }
-        showAIImage(); // Call the function to display the image
-
-        // Function to call showPopup API
-        function showPopup() {
-            Telegram.WebApp.showPopup({
-                title: 'Title',
-                message: 'Some message',
-                buttons: [
-                    { id: 'link', type: 'default', text: 'Open ton.org' },
-                    { type: 'cancel' },
-                ]
-            }, function (btn) {
-                if (btn === 'link') {
-                    Telegram.WebApp.openLink('https://ton.org/');
-                }
-            });
-        };
-
-        // Function to toggle main TWA button
-        function toggleMainButton() {
-            if (Telegram.WebApp.MainButton.isVisible) {
-                Telegram.WebApp.MainButton.hide();
-            } else {
-                Telegram.WebApp.MainButton.show();
-            }
-        };
-
-        function setViewportData() {
-            var sizeEl = document.getElementById('viewport-params-size');
-            sizeEl.innerText = 'width: ' + window.innerWidth + ' x ' +
-                'height: ' + Telegram.WebApp.viewportStableHeight;
-
-            var expandEl = document.querySelector('#viewport-params-expand');
-            expandEl.innerText = 'Is Expanded: ' + (Telegram.WebApp.isExpanded ? 'true' : 'false');
-        }
-
-        Telegram.WebApp.setHeaderColor('secondary_bg_color');
-
-        setViewportData();
-        Telegram.WebApp.onEvent('viewportChanged', setViewportData);
-
-        Telegram.WebApp.onEvent('themeChanged', function () {
-            document.body.setAttribute('style', '--bg-color:' + Telegram.WebApp.backgroundColor);
-        });
-
-        function sleep(ms) {
-            return new Promise(resolve => setTimeout(resolve, ms));
-        }
-
-
-
-        const width = 125
-        const height = 125
-        const outputCtx = document.getElementById("output").getContext("2d")
-        const iterationLabel = document.getElementById("iteration")
-        const stopAtIteration = 20000
-        let perceptron = new synaptic.Architect.Perceptron(2, 15, 3)
-        let iteration = 0
-        var inputData = null
-
-        function inputDataInit() {
-          console.log("Test1")
-          const tempCtx = document.createElement("canvas").getContext("2d")
-          tempCtx.drawImage(document.getElementById("input"), 0, 0)
-          console.log("Test2")
-          return tempCtx.getImageData(0, 0, width, height);
-        }
-
-        const getRGB = (img, x, y) => {
-          return [
-            img.data[(height * y + x) * 4] / 255, // R
-            img.data[(height * y + x) * 4 + 1] / 255, // G
-            img.data[(height * y + x) * 4 + 2] / 255, // B
-            //img.data[(height * y + x) * 4 + 3], // Alpha not used
-          ]
-        }
-        const paint = () => {
-          var imageData = outputCtx.getImageData(0, 0, width, height)
-
-          for (let x = 0; x < width; x++) {
-            for (let y = 0; y < height; y++) {
-              var rgb = perceptron.activate([x / width, y / height])
-              imageData.data[(height * y + x) * 4] = rgb[0] * 255
-              imageData.data[(height * y + x) * 4 + 1] = rgb[1] * 255
-              imageData.data[(height * y + x) * 4 + 2] = rgb[2] * 255
-              imageData.data[(height * y + x) * 4 + 3] = 255 // Alpha not used
-            }
+    document.addEventListener('DOMContentLoaded', function() {
+      const footer = document.querySelector('.stick-it-to-the-man');
+      const navigator = document.querySelector('.navigator');
+      if (window.visualViewport) {
+        const vv = window.visualViewport;
+        const originHeight = vv.height;
+        function fixPosition() {
+          // alert('resize');
+          const resizeHeight = vv.height
+          if (resizeHeight < originHeight) {
+            navigator.style.height = `0px`;
+          } else {
+            navigator.style.height = `55px`;
           }
-        //   for (let x = 0; x < width; x++) {
-        //     for (let y = 0; y < height; y++) {
-        //       var rgb = perceptron.activate([x / width, y / height])
-        //       imageData.data[(height * y + x) * 4] = 0
-        //       imageData.data[(height * y + x) * 4 + 1] = 0
-        //       imageData.data[(height * y + x) * 4 + 2] = 0
-        //       imageData.data[(height * y + x) * 4 + 3] = // Alpha not used
-        //     }
-        //   }
-          outputCtx.putImageData(imageData, 0, 0)
-
-          setTimeout(train, 0)
+          var nheight = navigator.clientHeight;
+          footer.style.top = `${vv.height - nheight}px`;
         }
+        vv.addEventListener('resize', fixPosition);
+        fixPosition(); // Make sure we call it once before resizing too
+      }
+    });
+  </script>
 
-        const train = () => {
-          iterationLabel.innerHTML = ++iteration
+  <main>
+    <h1>Main Content</h1>
+    <p>This is the main content area.</p>
+    <p>Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed euismod justo eget metus consectetur, et fermentum nunc tincidunt.</p>
 
-          if (iteration > stopAtIteration) return
+    <!-- New input field added -->
+    <label for="textInput">Enter Text:</label>
+    <input type="text" id="textInput" name="textInput">
+  </main>
 
-
-          for (let x = 0; x < width; x += 1) {
-            for (let y = 0; y < height; y += 1) {
-            //   let learningRate = 0.01 / (1 + 0.0005 * iteration) // Attempt with dynamic learning rate
-              let learningRate = 0.01 // Attempt with non-dinamyc learning rate
-
-              perceptron.activate([x / width, y / height])
-              perceptron.propagate(learningRate, getRGB(inputData, x, y))
-            }
-          }
-          paint()
-        }
-
-        const startTraining = (btn) => {
-          btn.disabled = true
-          inputData = inputDataInit();
-          console.log("inputImageData:", inputData);
-          train()
-        }
-
-    </script>
-
-    <!-- Eruda is console for mobile browsers -->
-    <script src="https://cdn.jsdelivr.net/npm/eruda"></script>
-    <script>eruda.init();</script>
+  <div class="stick-it-to-the-man">
+    <p>Look I'm at the bottom!</p>
+  </div>
+  <div class="navigator">
+    <p>这才是底，但是我会消失</p>
+  </div>
 </body>
-
 </html>
+
