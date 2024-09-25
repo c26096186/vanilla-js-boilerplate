@@ -6,75 +6,50 @@
   <meta name="format-detection" content="telephone=no" />
   <meta name="apple-mobile-web-app-capable" content="yes" />
   <style>
-    .stick-it-to-the-man {
-      position: fixed;
-      left: 0;
-      width: 100%;
-      transform: translateY(-100%);
-      text-align: center;
-      background-color: lightblue; /* 仅作为示例背景色 */
-    }
-    .navigator {
-      position: fixed;
-      left: 0;
-      height: 55px;
-      width: 100%;
-      bottom: 0;
-      text-align: center;
-      background-color: lightgray; /* 仅作为示例背景色 */
+    #log {
+      background-color: lightyellow;
+      padding: 10px;
+      margin-top: 20px;
+      max-height: 300px;
+      overflow-y: scroll;
+      font-family: monospace;
     }
   </style>
-  <title>Fixed Footer Example</title>
+  <title>Telegram WebApp Logger</title>
 </head>
 <body>
-  <script>
-    var mo=function(e){e.preventDefault();};
-    function stop(){
-      document.body.style.overflow='hidden';
-      document.addEventListener("touchmove",mo,{passive:false});//禁止页面滑动
-    }
-    //直接默认不让滑动
-    stop();
-
-    document.addEventListener('DOMContentLoaded', function() {
-      const footer = document.querySelector('.stick-it-to-the-man');
-      const navigator = document.querySelector('.navigator');
-      if (window.visualViewport) {
-        const vv = window.visualViewport;
-        const originHeight = vv.height;
-        function fixPosition() {
-          // alert('resize');
-          const resizeHeight = vv.height
-          if (resizeHeight < originHeight) {
-            navigator.style.height = `0px`;
-          } else {
-            navigator.style.height = `55px`;
-          }
-          var nheight = navigator.clientHeight;
-          footer.style.top = `${vv.height - nheight}px`;
-        }
-        vv.addEventListener('resize', fixPosition);
-        fixPosition(); // Make sure we call it once before resizing too
-      }
-    });
-  </script>
 
   <main>
-    <h1>Main Content</h1>
-    <p>This is the main content area.</p>
-    <p>Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed euismod justo eget metus consectetur, et fermentum nunc tincidunt.</p>
-
-    <!-- New input field added -->
-    <label for="textInput">Enter Text:</label>
-    <input type="text" id="textInput" name="textInput">
+    <h1>Telegram WebApp Logger</h1>
+    <p>This page logs Telegram WebApp data every 30 seconds.</p>
+    <div id="log"></div>
   </main>
 
-  <div class="stick-it-to-the-man">
-    <p>Look I'm at the bottom!</p>
-  </div>
-  <div class="navigator">
-    <p>这才是底，但是我会消失</p>
-  </div>
+  <script src="https://telegram.org/js/telegram-web-app.js"></script>
+  <script>
+    // Function to log the Telegram WebApp data
+    function logTelegramData() {
+      const initData = window.Telegram.WebApp.initData;
+      const initDataUnsafe = window.Telegram.WebApp.initDataUnsafe;
+      const logContainer = document.getElementById('log');
+
+      const logMessage = `
+        <p><strong>Timestamp:</strong> ${new Date().toLocaleTimeString()}</p>
+        <p><strong>initData:</strong> ${initData}</p>
+        <p><strong>initDataUnsafe:</strong> ${JSON.stringify(initDataUnsafe, null, 2)}</p>
+        <hr />
+      `;
+      logContainer.innerHTML += logMessage;
+
+      // Scroll to the bottom of the log
+      logContainer.scrollTop = logContainer.scrollHeight;
+    }
+
+    // Log the Telegram data every 30 seconds
+    setInterval(logTelegramData, 30000);
+
+    // Log the data immediately on page load as well
+    logTelegramData();
+  </script>
 </body>
 </html>
-
